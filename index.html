@@ -1,170 +1,106 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ar">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>GiftMemo</title>
-
-<style>
-body{
-font-family: Arial, sans-serif;
-background:#f4f6f8;
-margin:0;
-padding:20px;
-}
-
-.container{
-background:white;
-max-width:400px;
-margin:auto;
-padding:20px;
-border-radius:12px;
-box-shadow:0 5px 15px rgba(0,0,0,0.1);
-}
-
-h2{
-text-align:center;
-color:#2b7cff;
-}
-
-input,select,button{
-width:100%;
-padding:10px;
-margin-top:10px;
-border-radius:8px;
-border:1px solid #ccc;
-font-size:14px;
-}
-
-button{
-background:#2b7cff;
-color:white;
-border:none;
-font-weight:bold;
-cursor:pointer;
-}
-
-button:hover{
-background:#1a5edb;
-}
-
-.gift{
-background:#eef3ff;
-margin-top:10px;
-padding:10px;
-border-radius:8px;
-cursor:pointer;
-}
-
-.gift:hover{
-background:#dbe6ff;
-}
-
-.selected{
-background:#2b7cff;
-color:white;
-}
-
-.saved{
-margin-top:20px;
-padding:10px;
-background:#f1f1f1;
-border-radius:8px;
-}
-</style>
-
+  <meta charset="UTF-8">
+  <title>Gift Reminder 🎁</title>
+  <style>
+    body {
+      font-family: Arial;
+      background: #f4f4f4;
+      text-align: center;
+      padding: 20px;
+    }
+    h1 {
+      color: #333;
+    }
+    input, button {
+      padding: 10px;
+      margin: 5px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+    }
+    button {
+      background: #28a745;
+      color: white;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #218838;
+    }
+    .card {
+      background: white;
+      margin: 10px auto;
+      padding: 10px;
+      width: 300px;
+      border-radius: 10px;
+      box-shadow: 0 0 5px rgba(0,0,0,0.2);
+    }
+    .delete {
+      background: red;
+      margin-top: 10px;
+    }
+  </style>
 </head>
-
 <body>
 
-<div class="container">
+  <h1>🎁 Gift Reminder</h1>
 
-<h2>🎁 GiftMemo</h2>
+  <input type="text" id="name" placeholder="اسم الشخص">
+  <input type="date" id="date">
+  <br>
+  <button onclick="addReminder()">➕ إضافة</button>
 
-<input id="name" placeholder="Person name">
-<input type="date" id="date">
+  <h2>📋 التذكيرات</h2>
+  <div id="list"></div>
 
-<select id="relation">
-<option value="">Select relationship</option>
-<option value="wife">Wife</option>
-<option value="husband">Husband</option>
-<option value="friend">Friend</option>
-<option value="child">Child</option>
-</select>
+  <script>
+    let reminders = JSON.parse(localStorage.getItem("reminders")) || [];
 
-<button onclick="suggest()">Suggest Gifts</button>
+    function saveData() {
+      localStorage.setItem("reminders", JSON.stringify(reminders));
+    }
 
-<div id="gifts"></div>
+    function render() {
+      let list = document.getElementById("list");
+      list.innerHTML = "";
 
-<button onclick="saveGift()">Save Selection</button>
+      reminders.forEach((r, index) => {
+        let div = document.createElement("div");
+        div.className = "card";
+        div.innerHTML = `
+          <strong>${r.name}</strong><br>
+          📅 ${r.date}<br>
+          <button class="delete" onclick="deleteReminder(${index})">❌ حذف</button>
+        `;
+        list.appendChild(div);
+      });
+    }
 
-<div class="saved" id="saved"></div>
+    function addReminder() {
+      let name = document.getElementById("name").value;
+      let date = document.getElementById("date").value;
 
-</div>
+      if (name === "" || date === "") {
+        alert("عمر البيانات!");
+        return;
+      }
 
-<script>
+      reminders.push({ name, date });
+      saveData();
+      render();
 
-let selectedGift = "";
+      document.getElementById("name").value = "";
+      document.getElementById("date").value = "";
+    }
 
-function suggest(){
-let r = document.getElementById("relation").value;
-let gifts = [];
+    function deleteReminder(index) {
+      reminders.splice(index, 1);
+      saveData();
+      render();
+    }
 
-if(r=="wife"){
-gifts=["Perfume","Jewelry","Romantic Dinner"];
-}
-if(r=="husband"){
-gifts=["Watch","Wallet","Headphones"];
-}
-if(r=="friend"){
-gifts=["Book","T-shirt","Coffee Mug"];
-}
-if(r=="child"){
-gifts=["Toy","Bicycle","Video Game"];
-}
-
-let html = "";
-
-gifts.forEach(g=>{
-html += `<div class="gift" onclick="selectGift(this,'${g}')">${g}</div>`;
-});
-
-document.getElementById("gifts").innerHTML = html;
-}
-
-function selectGift(el, gift){
-selectedGift = gift;
-
-document.querySelectorAll(".gift").forEach(g=>{
-g.classList.remove("selected");
-});
-
-el.classList.add("selected");
-}
-
-function saveGift(){
-
-let name = document.getElementById("name").value;
-let date = document.getElementById("date").value;
-
-if(!name || !date || !selectedGift){
-alert("Please fill all fields and select a gift");
-return;
-}
-
-let data = {
-name,
-date,
-gift: selectedGift
-};
-
-localStorage.setItem("giftmemo", JSON.stringify(data));
-
-document.getElementById("saved").innerHTML =
-`Saved: ${name} - ${selectedGift}`;
-}
-
-</script>
+    render();
+  </script>
 
 </body>
 </html>

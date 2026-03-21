@@ -116,8 +116,11 @@ if (reminders.length === 0) {
           📅 ${r.date}<br>
 ⏳ ${daysLeft(r.date)} days left<br>
           ❤️ ${r.relationship}<br>
-          🎁 <strong style="color:#10B981;">${r.gift || "Choose gift"}</strong><br>
-        `;
+🎁 <strong style="color:#10B981;">
+${r.gift || "Choose gift"}
+</strong>
+${r.gift ? `<button onclick="editGift(${index})">✏️</button>` : ""}
+<br>        `;
 if (!r.gift) {
         gifts.forEach(g => {
           let btn = document.createElement("button");

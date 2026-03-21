@@ -1,8 +1,8 @@
 <!DOCTYPE html>
-<html lang="ar">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Gift Reminder 🎁</title>
+  <title>GiftMemo 🎁</title>
   <style>
     body {
       font-family: Arial;
@@ -13,44 +13,56 @@
     h1 {
       color: #333;
     }
-    input, button {
+    input, select, button {
       padding: 10px;
       margin: 5px;
-      border-radius: 5px;
+      border-radius: 8px;
       border: 1px solid #ccc;
     }
     button {
-      background: #28a745;
+      background: #3B82F6;
       color: white;
       cursor: pointer;
-    }
-    button:hover {
-      background: #218838;
     }
     .card {
       background: white;
       margin: 10px auto;
-      padding: 10px;
-      width: 300px;
-      border-radius: 10px;
-      box-shadow: 0 0 5px rgba(0,0,0,0.2);
+      padding: 15px;
+      width: 320px;
+      border-radius: 12px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
     }
     .delete {
       background: red;
       margin-top: 10px;
     }
+    .gift-btn {
+      background: #10B981;
+      margin: 3px;
+    }
   </style>
 </head>
 <body>
 
-  <h1>🎁 Gift Reminder</h1>
+  <h1>🎁 GiftMemo</h1>
 
-  <input type="text" id="name" placeholder="اسم الشخص">
+  <input type="text" id="name" placeholder="Name">
   <input type="date" id="date">
-  <br>
-  <button onclick="addReminder()">➕ إضافة</button>
 
-  <h2>📋 التذكيرات</h2>
+  <br>
+
+  <select id="relationship">
+    <option value="">Select Relationship</option>
+    <option>Wife</option>
+    <option>Husband</option>
+    <option>Friend</option>
+    <option>Child</option>
+  </select>
+
+  <br>
+  <button onclick="addReminder()">➕ Add</button>
+
+  <h2>📋 Reminders</h2>
   <div id="list"></div>
 
   <script>
@@ -60,6 +72,14 @@
       localStorage.setItem("reminders", JSON.stringify(reminders));
     }
 
+    function getGifts(rel) {
+      if (rel === "Wife") return ["Perfume", "Jewelry", "Romantic Dinner"];
+      if (rel === "Husband") return ["Watch", "Wallet", "Dinner"];
+      if (rel === "Friend") return ["Book", "T-shirt", "Watch"];
+      if (rel === "Child") return ["Toy", "Bicycle", "Game"];
+      return [];
+    }
+
     function render() {
       let list = document.getElementById("list");
       list.innerHTML = "";
@@ -67,11 +87,30 @@
       reminders.forEach((r, index) => {
         let div = document.createElement("div");
         div.className = "card";
+
+        let gifts = getGifts(r.relationship);
+
         div.innerHTML = `
           <strong>${r.name}</strong><br>
           📅 ${r.date}<br>
-          <button class="delete" onclick="deleteReminder(${index})">❌ حذف</button>
+          ❤️ ${r.relationship}<br>
+          🎁 ${r.gift || "Choose gift"}<br>
         `;
+
+        gifts.forEach(g => {
+          let btn = document.createElement("button");
+          btn.className = "gift-btn";
+          btn.innerText = g;
+          btn.onclick = () => selectGift(index, g);
+          div.appendChild(btn);
+        });
+
+        let del = document.createElement("button");
+        del.className = "delete";
+        del.innerText = "❌ Delete";
+        del.onclick = () => deleteReminder(index);
+        div.appendChild(del);
+
         list.appendChild(div);
       });
     }
@@ -79,18 +118,26 @@
     function addReminder() {
       let name = document.getElementById("name").value;
       let date = document.getElementById("date").value;
+      let relationship = document.getElementById("relationship").value;
 
-      if (name === "" || date === "") {
-        alert("عمر البيانات!");
+      if (!name || !date || !relationship) {
+        alert("Fill all fields!");
         return;
       }
 
-      reminders.push({ name, date });
+      reminders.push({ name, date, relationship, gift: "" });
       saveData();
       render();
 
       document.getElementById("name").value = "";
       document.getElementById("date").value = "";
+      document.getElementById("relationship").value = "";
+    }
+
+    function selectGift(index, gift) {
+      reminders[index].gift = gift;
+      saveData();
+      render();
     }
 
     function deleteReminder(index) {

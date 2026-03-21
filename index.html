@@ -116,9 +116,9 @@ if (reminders.length === 0) {
           📅 ${r.date}<br>
 ⏳ ${daysLeft(r.date)} days left<br>
           ❤️ ${r.relationship}<br>
-          🎁 ${r.gift || "Choose gift"}<br>
+          🎁 <strong style="color:#10B981;">${r.gift || "Choose gift"}</strong><br>
         `;
-
+if (!r.gift) {
         gifts.forEach(g => {
           let btn = document.createElement("button");
           btn.className = "gift-btn";
@@ -126,7 +126,7 @@ if (reminders.length === 0) {
           btn.onclick = () => selectGift(index, g);
           div.appendChild(btn);
         });
-
+}
         let del = document.createElement("button");
         del.className = "delete";
         del.innerText = "❌ Delete";

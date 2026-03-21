@@ -66,6 +66,13 @@
   <div id="list"></div>
 
   <script>
+    function daysLeft(date) {
+  const today = new Date();
+  const eventDate = new Date(date);
+  const diffTime = eventDate - today;
+  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+  return diffDays;
+}
     let reminders = JSON.parse(localStorage.getItem("reminders")) || [];
 
     function saveData() {
@@ -83,7 +90,10 @@
     function render() {
       let list = document.getElementById("list");
       list.innerHTML = "";
-
+if (reminders.length === 0) {
+  list.innerHTML = "<p>No reminders yet 😢</p>";
+  return;
+}
       reminders.forEach((r, index) => {
         let div = document.createElement("div");
         div.className = "card";

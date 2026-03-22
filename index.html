@@ -90,8 +90,21 @@ button:hover {
       localStorage.setItem("reminders", JSON.stringify(reminders));
     }
 
-    function getGifts(rel) {
-      if (rel === "Wife") return ["Perfume", "Jewelry", "Romantic Dinner"];
+function getGifts(rel) {
+
+  const allGifts = {
+    Wife: ["Perfume", "Jewelry", "Handbag", "Makeup Kit", "Romantic Dinner"],
+    Husband: ["Watch", "Wallet", "Perfume", "Gaming Gear", "Shoes"],
+    Friend: ["Book", "T-shirt", "Headphones", "Coffee Mug", "Backpack"],
+    Child: ["Toy", "Bicycle", "Video Game", "Puzzle", "Drawing Kit"]
+  };
+
+  let gifts = allGifts[rel] || [];
+
+  // نختارو 3 عشوائيين
+  let shuffled = gifts.sort(() => 0.5 - Math.random());
+  return shuffled.slice(0, 3);
+}      if (rel === "Wife") return ["Perfume", "Jewelry", "Romantic Dinner"];
       if (rel === "Husband") return ["Watch", "Wallet", "Dinner"];
       if (rel === "Friend") return ["Book", "T-shirt", "Watch"];
       if (rel === "Child") return ["Toy", "Bicycle", "Game"];

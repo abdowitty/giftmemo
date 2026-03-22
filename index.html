@@ -1,9 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>GiftMemo 🎁</title>
-  <style>
+<meta charset="UTF-8">
+<title>GiftMemo 🎁</title>
+
+<style>
 body {
   font-family: Arial;
   background: #F9FAFB;
@@ -53,43 +54,48 @@ button:hover {
 }
 </style>
 </head>
+
 <body>
 
-  <h1>🎁 GiftMemo</h1>
+<h1>🎁 GiftMemo</h1>
 
-  <input type="text" id="name" placeholder="Name">
-  <input type="date" id="date">
+<input type="text" id="name" placeholder="Name">
+<input type="date" id="date">
 
-  <br>
+<br>
 
-  <select id="relationship">
-    <option value="">Select Relationship</option>
-    <option>Wife</option>
-    <option>Husband</option>
-    <option>Friend</option>
-    <option>Child</option>
-  </select>
+<select id="relationship">
+  <option value="">Select Relationship</option>
+  <option>Wife</option>
+  <option>Husband</option>
+  <option>Friend</option>
+  <option>Child</option>
+</select>
 
-  <br>
-  <button onclick="addReminder()">➕ Add</button>
+<br>
+<button onclick="addReminder()">➕ Add</button>
 
-  <h2>📋 Reminders</h2>
-  <div id="list"></div>
+<h2>📋 Reminders</h2>
+<div id="list"></div>
 
-  <script>
-    function daysLeft(date) {
+<script>
+
+// 🧠 حساب الأيام
+function daysLeft(date) {
   const today = new Date();
   const eventDate = new Date(date);
   const diffTime = eventDate - today;
-  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-  return diffDays;
+  return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 }
-    let reminders = JSON.parse(localStorage.getItem("reminders")) || [];
 
-    function saveData() {
-      localStorage.setItem("reminders", JSON.stringify(reminders));
-    }
+// 💾 التخزين
+let reminders = JSON.parse(localStorage.getItem("reminders")) || [];
 
+function saveData() {
+  localStorage.setItem("reminders", JSON.stringify(reminders));
+}
+
+// 🎁 AI Gifts (Random)
 function getGifts(rel) {
 
   const allGifts = {
@@ -99,92 +105,113 @@ function getGifts(rel) {
     Child: ["Toy", "Bicycle", "Video Game", "Puzzle", "Drawing Kit"]
   };
 
-  let gifts = allGifts[rel] || [];
+  let gifts = [...(allGifts[rel] || [])];
 
-  // نختارو 3 عشوائيين
-  let shuffled = gifts.sort(() => 0.5 - Math.random());
-  return shuffled.slice(0, 3);
-}      if (rel === "Wife") return ["Perfume", "Jewelry", "Romantic Dinner"];
-      if (rel === "Husband") return ["Watch", "Wallet", "Dinner"];
-      if (rel === "Friend") return ["Book", "T-shirt", "Watch"];
-      if (rel === "Child") return ["Toy", "Bicycle", "Game"];
-      return [];
-    }
+  // خلط حقيقي
+  for (let i = gifts.length - 1; i > 0; i--) {
+    let j = Math.floor(Math.random() * (i + 1));
+    [gifts[i], gifts[j]] = [gifts[j], gifts[i]];
+  }
 
-    function render() {
-      let list = document.getElementById("list");
-      list.innerHTML = "";
-if (reminders.length === 0) {
-  list.innerHTML = "<p>No reminders yet 😢</p>";
-  return;
+  return gifts.slice(0, 3);
 }
-      reminders.forEach((r, index) => {
-        let div = document.createElement("div");
-        div.className = "card";
 
-        let gifts = getGifts(r.relationship);
+// 🧾 عرض البيانات
+function render() {
+  let list = document.getElementById("list");
+  list.innerHTML = "";
 
-        div.innerHTML = `
-          <strong>${r.name}</strong><br>
-          📅 ${r.date}<br>
-⏳ ${daysLeft(r.date)} days left<br>
-          ❤️ ${r.relationship}<br>
-🎁 <strong style="color:#10B981;">
-${r.gift || "Choose gift"}
-</strong>
-${r.gift ? `<button onclick="editGift(${index})">✏️</button>` : ""}
-<br>        `;
-if (!r.gift) {
-        gifts.forEach(g => {
-          let btn = document.createElement("button");
-          btn.className = "gift-btn";
-          btn.innerText = g;
-          btn.onclick = () => selectGift(index, g);
-          div.appendChild(btn);
-        });
-}
-        let del = document.createElement("button");
-        del.className = "delete";
-        del.innerText = "❌ Delete";
-        del.onclick = () => deleteReminder(index);
-        div.appendChild(del);
+  if (reminders.length === 0) {
+    list.innerHTML = "<p>No reminders yet 😢</p>";
+    return;
+  }
 
-        list.appendChild(div);
+  reminders.forEach((r, index) => {
+
+    let div = document.createElement("div");
+    div.className = "card";
+
+    let gifts = getGifts(r.relationship);
+
+    div.innerHTML = `
+      <strong>${r.name}</strong><br>
+      📅 ${r.date}<br>
+      ⏳ ${daysLeft(r.date)} days left<br>
+      ❤️ ${r.relationship}<br>
+
+      🎁 <strong style="color:#10B981;">
+      ${r.gift || "Choose gift"}
+      </strong>
+      ${r.gift ? `<button onclick="editGift(${index})">✏️</button>` : ""}
+      <br>
+    `;
+
+    // إلا ما اختارش الهدية
+    if (!r.gift) {
+      gifts.forEach(g => {
+        let btn = document.createElement("button");
+        btn.className = "gift-btn";
+        btn.innerText = g;
+        btn.onclick = () => selectGift(index, g);
+        div.appendChild(btn);
       });
     }
 
-    function addReminder() {
-      let name = document.getElementById("name").value;
-      let date = document.getElementById("date").value;
-      let relationship = document.getElementById("relationship").value;
+    let del = document.createElement("button");
+    del.className = "delete";
+    del.innerText = "❌ Delete";
+    del.onclick = () => deleteReminder(index);
+    div.appendChild(del);
 
-      if (!name || !date || !relationship) {
-        alert("Fill all fields!");
-        return;
-      }
+    list.appendChild(div);
+  });
+}
 
-      reminders.push({ name, date, relationship, gift: "" });
-      saveData();
-      render();
+// ➕ إضافة
+function addReminder() {
+  let name = document.getElementById("name").value;
+  let date = document.getElementById("date").value;
+  let relationship = document.getElementById("relationship").value;
 
-      document.getElementById("name").value = "";
-      document.getElementById("date").value = "";
-      document.getElementById("relationship").value = "";
-    }
+  if (!name || !date || !relationship) {
+    alert("Fill all fields!");
+    return;
+  }
 
-    function selectGift(index, gift) {
-      reminders[index].gift = gift;
-      saveData();
-      render();
-    }
+  reminders.push({ name, date, relationship, gift: "" });
+  saveData();
+  render();
 
-    function deleteReminder(index) {
-      reminders.splice(index, 1);
-      saveData();
-      render();
-    }
+  document.getElementById("name").value = "";
+  document.getElementById("date").value = "";
+  document.getElementById("relationship").value = "";
+}
 
-  </script>
+// 🎁 اختيار هدية
+function selectGift(index, gift) {
+  reminders[index].gift = gift;
+  saveData();
+  render();
+}
+
+// ✏️ تعديل
+function editGift(index) {
+  reminders[index].gift = "";
+  saveData();
+  render();
+}
+
+// ❌ حذف
+function deleteReminder(index) {
+  reminders.splice(index, 1);
+  saveData();
+  render();
+}
+
+// 🚀 تشغيل
+render();
+
+</script>
 
 </body>
 </html>
